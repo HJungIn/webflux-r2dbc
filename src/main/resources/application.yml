@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: username
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    generate-ddl: true
+
+  r2dbc:
+    url: r2dbc:pool:postgresql://localhost:5432/postgres
+    username: username
+    password: password
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
