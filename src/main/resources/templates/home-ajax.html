@@ -1,0 +1,86 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <title>Webflux</title>
+</head>
+
+<body>
+<br/><br/><br/><br/>
+<div class="col-lg-8 col-lg-offset-2">
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="70"
+             aria-valuemin="0" aria-valuemax="100" style="width:0">
+            <span id="fullResponse"></span>
+        </div>
+    </div>
+    <h4 id="progressTest"></h4>
+    <ul id="namesList"></ul>
+
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+<script>
+    var lastResponseLength = false;
+    var ajaxRequest = $.ajax({
+        type: 'get',
+        url: '/list',
+        dataType: 'text',
+        async: true,
+        processData: false,
+        xhrFields: { // XMLHttpRequest : 웹 서버와 데이터 교환을 백그라운드에서 비동기적으로 가능하게 해줍니다.
+            // Getting on progress streaming response
+            onprogress: function(e)
+            {
+                var progressResponse;
+                var response = e.currentTarget.response;
+                console.log(e);
+                console.log('response : ')
+                console.log(response);
+                if(lastResponseLength === false)
+                {
+                    progressResponse = response;
+                    lastResponseLength = response.length;
+                }
+                else
+                {
+                    progressResponse = response.substring(lastResponseLength);
+                    lastResponseLength = response.length;
+                }
+                console.log('progressResponse : ')
+                console.log(progressResponse)
+                var parsedResponse = JSON.parse(progressResponse);
+                console.log('parsedResponse : ');
+                console.log(parsedResponse);
+                $('#progressTest').append(progressResponse+"<br/>");
+                $('#fullResponse').text(parsedResponse.score);
+                $('#namesList').append('<li>'+parsedResponse.name+"</li>");
+                $('.progress-bar').css('width', e.loaded + '%');
+                // $('.progress-bar').css('width', parseInt(Math.round((e.loaded * 100) / e.total)) + '%'); // 이게 기본이지만 lengthcomputable이 false면 언제 끝날지 가늠할 수 없다.
+                console.log('===========================================')
+            }
+        }
+    });
+
+    // On completed
+    ajaxRequest.done(function(data)
+    {
+        console.log('Complete response = ' + data);
+    });
+
+    // On failed
+    ajaxRequest.fail(function(error){
+        console.log('Error: ', error);
+    });
+
+    console.log('Request Sent');
+</script>
+</body>
+</html>

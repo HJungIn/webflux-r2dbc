@@ -31,7 +31,7 @@ public class MovieController {
     public String home(Model model){
 //        IReactiveDataDriverContextVariable reactiveDataDriver = new ReactiveDataDriverContextVariable(movieJpaRepository.findAll(), 1); // x : jpa는 blocking 되는 애라서 reactive일 때 안됨
 //        IReactiveDataDriverContextVariable reactiveDataDriver = new ReactiveDataDriverContextVariable(reactiveMovieRepository.findAll(), 1); // o
-        IReactiveDataDriverContextVariable reactiveDataDriver = new ReactiveDataDriverContextVariable(movieR2dbcRepository.findAll().delayElements(Duration.ofMillis(500)), 1);
+        IReactiveDataDriverContextVariable reactiveDataDriver = new ReactiveDataDriverContextVariable(movieR2dbcRepository.findAll().delayElements(Duration.ofMillis(500)), 1); // o
         System.out.println("reactiveDataDriver = " + reactiveDataDriver);
         model.addAttribute("movies", reactiveDataDriver);
 
@@ -39,18 +39,23 @@ public class MovieController {
         return "home";
     }
 
+    @RequestMapping("/ajax")
+    public String homeAjax(Model model){
+        return "home-ajax";
+    }
+
 
     // TEXT_EVENT_STREAM : SSE(Server Sent Events)의 공식 미디어 유형
-    // APPLICATION_OCTET_STREAM_VALUE : 서버 대 서버 / HTTP 클라이언트 (브라우저가 아닌 모든 것) 통신을위한 것
+    // APPLICATION_STREAM_JSON_VALUE : 서버 대 서버 / HTTP 클라이언트 (브라우저가 아닌 모든 것) 통신을위한 것
     // https://stackoverflow.com/questions/52098863/whats-the-difference-between-text-event-stream-and-application-streamjson
 //    @GetMapping(value = "/list") // x : 한꺼번에 옴
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_STREAM_JSON_VALUE) // o : 하나하나 옴 ===> 얘가 그래도 제일 맞는 형태
 //    @GetMapping(value = "/list", produces = MediaType.APPLICATION_NDJSON_VALUE) // x : 다운로드 됨
-//    @GetMapping(value = "/list", produces = MediaType.TEXT_EVENT_STREAM) // 앞에 data 가 붙어서 옴
+//    @GetMapping(value = "/list", produces = MediaType.TEXT_EVENT_STREAM) // △ : 앞에 data 가 붙어서 옴
     @ResponseBody
     public Flux<Movie> getList(){
 //        return reactiveMovieRepository.findAll().delayElements(Duration.ofMillis(200)); // o
 //        return reactiveMovieRepository.findAll().log(); // 로그 남기기
-        return movieR2dbcRepository.findAll().delayElements(Duration.ofMillis(200)); // o
+        return movieR2dbcRepository.findAll().delayElements(Duration.ofMillis(2000)); // o
     }
 }
